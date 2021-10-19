@@ -5,6 +5,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 import { typeOrmConfigAsync } from './database/typeorm.config';
+import { RolesModule } from './roles/roles.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -12,6 +14,8 @@ import { typeOrmConfigAsync } from './database/typeorm.config';
       isGlobal: true,
     }),
     TypeOrmModule.forRootAsync(typeOrmConfigAsync),
+    RolesModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

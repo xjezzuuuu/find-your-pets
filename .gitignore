@@ -5,6 +5,9 @@
 # enviroment
 .env
 
+#
+/src/database/migrations
+
 # Logs
 logs
 *.log
