@@ -8,64 +8,105 @@ import {
   Delete,
   HttpException,
   HttpStatus,
+  ParseIntPipe,
+  UseInterceptors,
+  ClassSerializerInterceptor,
+  HttpCode,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { throws } from 'assert';
+import { User } from './entities/user.entity';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly _usersService: UsersService) {}
 
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  async findAll(): Promise<User[]> {
+    return await this._usersService.findAll();
   }
 
-  @Get('/auth')
-  async findByEmail(@Body() body: any) {
-    const user = await this.usersService.findByEmail(body);
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Get(':id')
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<User> {
+    return await this._usersService.findOne(id);
+  }
+
+  @HttpCode(HttpStatus.CREATED)
+  @Post()
+  async create(@Body() createUserDto: CreateUserDto): Promise<User> {
+    const user = await this._usersService.findByEmail(createUserDto.email);
+
+    if (user) {
+      throw new HttpException(
+        {
+          status: HttpStatus.FOUND,
+          error: `User with email ${user.email} it already exist.`,
+        },
+        HttpStatus.FOUND,
+      );
+    }
+
+    return this._usersService.create(createUserDto);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Patch(':id')
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    const user = await this._usersService.findOne(id);
 
     if (!user) {
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
-          error: `User with the email ${body.email} not found`,
+          error: `User not found.`,
         },
         HttpStatus.NOT_FOUND,
       );
     }
 
-    if (user.password !== body.password) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: `Password incorrect!`,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
+    await this._usersService.update(id, updateUserDto).catch((e) => {
+      if (e.errno === 1062) {
+        throw new HttpException(
+          {
+            status: HttpStatus.FOUND,
+            error: `User with email ${updateUserDto.email} it already exist.`,
+          },
+          HttpStatus.FOUND,
+        );
+      }
+    });
 
-    return user;
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
-  }
-
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+    return await this._usersService.findOne(id);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    const user = await this._usersService.findOne(id);
+
+    if (!user) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: `User with id ${id} not found`,
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    await this._usersService.remove(id);
+
+    throw new HttpException(
+      {
+        status: HttpStatus.ACCEPTED,
+        message: `User with id ${id} deleted!`,
+      },
+      HttpStatus.ACCEPTED,
+    );
   }
 }

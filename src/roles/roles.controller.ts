@@ -8,6 +8,7 @@ import {
   Delete,
   HttpStatus,
   HttpException,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
@@ -15,16 +16,16 @@ import { UpdateRoleDto } from './dto/update-role.dto';
 
 @Controller('roles')
 export class RolesController {
-  constructor(private readonly rolesService: RolesService) {}
+  constructor(private readonly _rolesService: RolesService) {}
 
   @Get()
   findAll() {
-    return this.rolesService.findAll();
+    return this._rolesService.findAll();
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    const user = await this.rolesService.findOne(+id);
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    const user = await this._rolesService.findOne(id);
 
     if (!user) {
       throw new HttpException(
@@ -41,17 +42,20 @@ export class RolesController {
 
   @Post()
   create(@Body() createRoleDto: CreateRoleDto) {
-    return this.rolesService.create(createRoleDto);
+    return this._rolesService.create(createRoleDto);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
-    return this.rolesService.update(+id, updateRoleDto);
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateRoleDto: UpdateRoleDto,
+  ) {
+    return this._rolesService.update(+id, updateRoleDto);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    const role = await this.rolesService.findOne(+id);
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    const role = await this._rolesService.findOne(id);
 
     if (!role) {
       throw new HttpException(
@@ -62,7 +66,7 @@ export class RolesController {
         HttpStatus.NOT_FOUND,
       );
     }
-    await this.rolesService.remove(+id);
+    await this._rolesService.remove(+id);
 
     throw new HttpException(
       {
