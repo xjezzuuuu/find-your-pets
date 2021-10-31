@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import config from './config/config';
 import { enviroments } from './config/enviroments';
 import { DatabaseModule } from './database/database.module';
+import { UsersModule } from './users/roles.module';
 
 @Module({
   imports: [
@@ -21,9 +22,16 @@ import { DatabaseModule } from './database/database.module';
         DB_USER: Joi.string().required(),
         DB_PASS: Joi.string().empty(''),
         DB_DATABASE: Joi.string().required(),
+        TYPEORM_ENTITIES: Joi.string().required(),
+        TYPEORM_SYNCHRONIZE: Joi.boolean().required(),
+        TYPEORM_MIGRATIONS: Joi.string().required(),
+        TYPEORM_MIGRATIONS_DIR: Joi.string().required(),
+        TYPEORM_MIGRATIONS_RUN: Joi.string().required(),
+        TYPEORM_LOGGING: Joi.boolean().required(),
       }),
     }),
     DatabaseModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
