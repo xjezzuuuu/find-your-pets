@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 
 import config from './config/config';
 import { enviroments } from './config/enviroments';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { enviroments } from './config/enviroments';
         DB_DATABASE: Joi.string().required(),
       }),
     }),
+    DatabaseModule,
   ],
   controllers: [AppController],
   providers: [AppService],
