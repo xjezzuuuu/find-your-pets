@@ -7,9 +7,11 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
+
 import { RolesService } from '../services/roles.service';
 import { CreateRoleDto, UpdateRoleDto } from '../dtos/role.dto';
-
+import { ApiTags } from '@nestjs/swagger';
+@ApiTags('Roles')
 @Controller('roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}

@@ -1,9 +1,10 @@
 import { IsNotEmpty, IsString } from 'class-validator';
-import { PartialType } from '@nestjs/mapped-types';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
 
 export class CreateRoleDto {
   @IsString()
   @IsNotEmpty()
+  @ApiProperty()
   name: string;
 }
 
