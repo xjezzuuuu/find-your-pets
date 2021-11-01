@@ -16,6 +16,7 @@ import { ConfigType } from '@nestjs/config';
           username: configService.database.user,
           password: configService.database.password,
           database: configService.database.name,
+          autoLoadEntities: true,
         };
       },
     }),

@@ -12,7 +12,7 @@ import { UsersModule } from './users/roles.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: enviroments[process.env.NODE_ENV] || '.env.development',
+      envFilePath: enviroments[process.env.NODE_ENV] || '.env',
       isGlobal: true,
       load: [config],
       validationSchema: Joi.object({
