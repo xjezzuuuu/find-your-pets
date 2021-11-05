@@ -12,6 +12,7 @@ async function bootstrap() {
     .setTitle('Find-Your-Pets')
     .setDescription('The Find-Your-Pets API Documentations')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/v1/docs', app, document);

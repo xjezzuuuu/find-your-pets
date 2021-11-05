@@ -2,28 +2,44 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 
 import { CreateUserDto, UpdateUserDto } from '../dtos/user.dto';
 import { UsersRepository } from '../repositories/users.repository';
+import { User } from '../entities/user.entity';
+import { AuthRegisterDto } from '../../auth/dtos/auth.dto';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly _usersRepository: UsersRepository) {}
 
-  async findAll() {
-    return await this._usersRepository.find();
+  async findAll(): Promise<User[]> {
+    return await this._usersRepository.find({ relations: ['role'] });
   }
 
-  async findOne(id: number) {
-    return await this._usersRepository.findOne(id);
+  async findByEmail(email: string): Promise<User> {
+    const user = await this._usersRepository.findByEmail(email);
+
+    if (user) return user;
   }
 
-  async create(createRoleDto: CreateUserDto) {
-    const newRole = this._usersRepository.create(createRoleDto);
-    return await this._usersRepository.save(newRole);
+  async findOne(id: number): Promise<User> {
+    return await this._usersRepository.findOne(id, { relations: ['role'] });
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
-    const role = await this._usersRepository.findOne(id);
+  async create(createUserDto: CreateUserDto | AuthRegisterDto): Promise<User> {
+    if (createUserDto instanceof CreateUserDto) {
+      const newUser = this._usersRepository.create(createUserDto);
+      return await this._usersRepository.save(newUser);
+    }
 
-    if (!role) {
+    const newUser = this._usersRepository.create({
+      roles_id: 2,
+      ...createUserDto,
+    });
+    return await this._usersRepository.save(newUser);
+  }
+
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    const user = await this._usersRepository.findOne(id);
+
+    if (!user) {
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
@@ -33,10 +49,16 @@ export class UsersService {
       );
     }
 
-    return this._usersRepository.save(updateUserDto);
+    await this._usersRepository.update(id, updateUserDto);
+
+    return user;
   }
 
   remove(id: number) {
     return `This action removes a #${id} user`;
+  }
+
+  async isAdmin(roleId: number): Promise<boolean> {
+    return roleId === 1 ? true : false;
   }
 }

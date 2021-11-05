@@ -2,25 +2,26 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 
 import { CreateRoleDto, UpdateRoleDto } from '../dtos/role.dto';
 import { RolesRepository } from '../repositories/roles.repository';
+import { Role } from '../entities/role.entity';
 
 @Injectable()
 export class RolesService {
   constructor(private readonly _rolesRepository: RolesRepository) {}
 
-  async findAll() {
+  async findAll(): Promise<Role[]> {
     return await this._rolesRepository.find();
   }
 
-  async findOne(id: number) {
+  async findOne(id: number): Promise<Role> {
     return await this._rolesRepository.findOne(id);
   }
 
-  async create(createRoleDto: CreateRoleDto) {
+  async create(createRoleDto: CreateRoleDto): Promise<Role> {
     const newRole = this._rolesRepository.create(createRoleDto);
     return await this._rolesRepository.save(newRole);
   }
 
-  async update(id: number, updateRoleDto: UpdateRoleDto) {
+  async update(id: number, updateRoleDto: UpdateRoleDto): Promise<Role> {
     const role = await this._rolesRepository.findOne(id);
 
     if (!role) {

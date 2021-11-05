@@ -8,7 +8,10 @@ import {
   DeleteDateColumn,
   ManyToOne,
   JoinColumn,
+  BeforeInsert,
+  BeforeUpdate,
 } from 'typeorm';
+import * as bcrypt from 'bcryptjs';
 
 import { Role } from './role.entity';
 @Entity('users')
@@ -16,6 +19,7 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Exclude()
   @Column('int')
   roles_id: number;
 
@@ -31,8 +35,8 @@ export class User {
   @Column('varchar', { length: 45, unique: true })
   email: string;
 
-  @Column('varchar', { length: 45 })
   @Exclude()
+  @Column('varchar', { length: 100 })
   password: string;
 
   @CreateDateColumn()
@@ -47,4 +51,20 @@ export class User {
   @ManyToOne(() => Role, (role) => role.users)
   @JoinColumn({ name: 'roles_id' })
   role: Role;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  emailToLowerCase() {
+    this.email = this.email.toLowerCase();
+  }
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  async hashPassword() {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
+
+  async validatePassword(password: string): Promise<boolean> {
+    return await bcrypt.compare(password, this.password);
+  }
 }
