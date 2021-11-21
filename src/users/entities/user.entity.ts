@@ -39,12 +39,15 @@ export class User {
   @Column('varchar', { length: 100 })
   password: string;
 
+  @Exclude()
   @CreateDateColumn()
   created_at: Date;
 
+  @Exclude()
   @UpdateDateColumn()
   updated_at: Date;
 
+  @Exclude()
   @DeleteDateColumn()
   deleted_at: Date;
 

@@ -24,6 +24,7 @@ export class CreatePetDto {
   race: string;
 
   @IsNotEmpty()
+  @IsString()
   @ApiProperty()
   age: number;
 

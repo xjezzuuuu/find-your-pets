@@ -42,16 +42,19 @@ export class PetsService {
   ): Promise<Pet> {
     const newPet = this._petsRepository.create(createPetDto);
     await this._petsRepository.save(newPet);
-    console.log(newPet.id);
 
-    if (files.length > 0) {
+    if (files && files.length > 0) {
       this._imagesRepository.createRelation(newPet.id, files);
     }
 
     return newPet;
   }
 
-  async update(id: number, updatePetDto: UpdatePetDto): Promise<Pet> {
+  async update(
+    id: number,
+    updatePetDto: UpdatePetDto,
+    files: Array<Express.Multer.File>,
+  ): Promise<Pet> {
     const pet = await this._petsRepository.findOne(id);
 
     if (!pet) {
@@ -63,11 +66,17 @@ export class PetsService {
         HttpStatus.NOT_FOUND,
       );
     }
-    return this._petsRepository.merge(pet, updatePetDto);
+    if (files && files.length > 0) {
+      await this._imagesRepository.deleteInCascade(pet.id);
+      this._imagesRepository.createRelation(pet.id, files);
+    }
+    this._petsRepository.merge(pet, updatePetDto);
+
+    return await this._petsRepository.save(pet);
   }
 
   async remove(id: number) {
-    const pet = this._petsRepository.findOne(id);
+    const pet = await this._petsRepository.findOne(id);
 
     if (!pet) {
       throw new HttpException(
@@ -79,6 +88,9 @@ export class PetsService {
       );
     }
 
-    return await this._petsRepository.softDelete(id);
+    await this._petsRepository.softDelete(id);
+    await this._imagesRepository.deleteInCascade(pet.id);
+
+    return 'Pet deleted successfully!.';
   }
 }

@@ -14,7 +14,6 @@ import { Pet } from './pet.entity';
 
 @Entity('images')
 export class Image {
-  @Exclude()
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -36,7 +35,7 @@ export class Image {
   @DeleteDateColumn()
   deleted_at: Date;
 
-  @ManyToOne(() => Pet, (pet) => pet.images)
+  @ManyToOne(() => Pet, (pet) => pet.images, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'pets_id' })
   pet: Pet;
 }

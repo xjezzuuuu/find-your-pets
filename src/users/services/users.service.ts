@@ -10,7 +10,7 @@ export class UsersService {
   constructor(private readonly _usersRepository: UsersRepository) {}
 
   async findAll(): Promise<User[]> {
-    return await this._usersRepository.find({ relations: ['role'] });
+    return await this._usersRepository.find();
   }
 
   async findByEmail(email: string): Promise<User> {
@@ -20,7 +20,18 @@ export class UsersService {
   }
 
   async findOne(id: number): Promise<User> {
-    return await this._usersRepository.findOne(id, { relations: ['role'] });
+    const user = await this._usersRepository.findOne(id);
+
+    if (!user) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: `User with id ${id} not found.`,
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return user;
   }
 
   async create(createUserDto: CreateUserDto | AuthRegisterDto): Promise<User> {
@@ -49,13 +60,25 @@ export class UsersService {
       );
     }
 
-    await this._usersRepository.update(id, updateUserDto);
+    this._usersRepository.merge(user, updateUserDto);
 
-    return user;
+    return await this._usersRepository.save(user);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: number) {
+    const user = await this._usersRepository.findOne(id);
+
+    if (!user) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: `User with id ${id} not found.`,
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return await this._usersRepository.softDelete(id);
   }
 
   async isAdmin(roleId: number): Promise<boolean> {

@@ -13,7 +13,19 @@ export class RolesService {
   }
 
   async findOne(id: number): Promise<Role> {
-    return await this._rolesRepository.findOne(id);
+    const role = await this._rolesRepository.findOne(id);
+
+    if (!role) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: `Role with id ${id} not found.`,
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return role;
   }
 
   async create(createRoleDto: CreateRoleDto): Promise<Role> {
@@ -34,10 +46,24 @@ export class RolesService {
       );
     }
 
-    return this._rolesRepository.save(updateRoleDto);
+    this._rolesRepository.merge(role, updateRoleDto);
+
+    return await this._rolesRepository.save(role);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: number) {
+    const role = await this._rolesRepository.findOne(id);
+
+    if (!role) {
+      throw new HttpException(
+        {
+          status: HttpStatus.NOT_FOUND,
+          error: `Role with id ${id} not found.`,
+        },
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    return await this._rolesRepository.softDelete(id);
   }
 }

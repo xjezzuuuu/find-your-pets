@@ -1,4 +1,5 @@
 import { Image } from './image.entity';
+import { Exclude } from 'class-transformer';
 import {
   PrimaryGeneratedColumn,
   Entity,
@@ -50,12 +51,14 @@ export class Pet {
   @CreateDateColumn()
   created_at: Date;
 
+  @Exclude()
   @UpdateDateColumn()
   updated_at: Date;
 
+  @Exclude()
   @DeleteDateColumn()
   deleted_at: Date;
 
-  @OneToMany(() => Image, (image) => image.pet)
+  @OneToMany(() => Image, (image) => image.pet, { cascade: true })
   images: Image[];
 }

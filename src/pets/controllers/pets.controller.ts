@@ -57,13 +57,15 @@ export class PetsController {
   }
 
   @ApiBearerAuth()
+  @UseInterceptors(FilesInterceptor('images'))
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updatePetDto: UpdatePetDto,
+    @UploadedFiles() files: Array<Express.Multer.File>,
   ): Promise<Pet> {
-    return this._petsService.update(id, updatePetDto);
+    return this._petsService.update(id, updatePetDto, files);
   }
 
   @ApiBearerAuth()
