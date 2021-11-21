@@ -6,6 +6,9 @@
 .env
 .env.development
 
+# Statics Assets
+/public
+
 # Logs
 logs
 *.log

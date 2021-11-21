@@ -5,6 +5,9 @@ export default registerAs('config', () => {
     app: {
       port: process.env.APP_PORT,
     },
+    files: {
+      dest: process.env.UPLOADS_FOLDER,
+    },
     jwt: {
       secretKey: process.env.JWT_SECRET,
       expires: process.env.JWT_EXPIRES,
