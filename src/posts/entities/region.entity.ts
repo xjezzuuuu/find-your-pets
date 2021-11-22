@@ -3,26 +3,29 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  JoinColumn,
-  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
+import { Province } from './province.entity';
 
-import { Pet } from './pet.entity';
-
-@Entity('images')
-export class Image {
+@Entity('regions')
+export class Region {
+  @Exclude()
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  pets_id: number;
-
-  @Column()
+  @Column({ type: 'varchar', length: 45 })
   name: string;
 
+  @Column({ type: 'varchar', length: 2 })
+  abbreviation: string;
+
+  @Column({ type: 'varchar', length: 45 })
+  capital: string;
+
+  @Exclude()
   @CreateDateColumn()
   created_at: Date;
 
@@ -34,7 +37,6 @@ export class Image {
   @DeleteDateColumn()
   deleted_at: Date;
 
-  @ManyToOne(() => Pet, (pet) => pet.images, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'pets_id' })
-  pet: Pet;
+  @OneToMany(() => Province, (province) => province.region)
+  provinces: Province[];
 }

@@ -31,5 +31,6 @@ import { extname } from 'path';
   ],
   controllers: [PetsController],
   providers: [PetsService],
+  exports: [PetsService],
 })
 export class PetsModule {}

@@ -1,5 +1,6 @@
 import { Image } from './image.entity';
 import { Exclude } from 'class-transformer';
+import { Post } from '../../posts/entities/post.entity';
 import {
   PrimaryGeneratedColumn,
   Entity,
@@ -8,6 +9,7 @@ import {
   UpdateDateColumn,
   DeleteDateColumn,
   OneToMany,
+  OneToOne,
 } from 'typeorm';
 
 @Entity('pets')
@@ -27,7 +29,7 @@ export class Pet {
   @Column('int')
   age: number;
 
-  @Column('varchar')
+  @Column()
   sex: string;
 
   @Column('varchar')
@@ -61,4 +63,7 @@ export class Pet {
 
   @OneToMany(() => Image, (image) => image.pet, { cascade: true })
   images: Image[];
+
+  @OneToOne(() => Post, (post) => post.pet)
+  post: Post;
 }

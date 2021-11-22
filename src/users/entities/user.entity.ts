@@ -10,10 +10,12 @@ import {
   JoinColumn,
   BeforeInsert,
   BeforeUpdate,
+  OneToMany,
 } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 
 import { Role } from './role.entity';
+import { Post } from '../../posts/entities/post.entity';
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn()
@@ -39,7 +41,6 @@ export class User {
   @Column('varchar', { length: 100 })
   password: string;
 
-  @Exclude()
   @CreateDateColumn()
   created_at: Date;
 
@@ -54,6 +55,9 @@ export class User {
   @ManyToOne(() => Role, (role) => role.users)
   @JoinColumn({ name: 'roles_id' })
   role: Role;
+
+  @OneToMany(() => Post, (post) => post.user)
+  posts: Post[];
 
   @BeforeInsert()
   @BeforeUpdate()

@@ -1,11 +1,5 @@
 import { PartialType, ApiProperty } from '@nestjs/swagger';
-import {
-  IsNumber,
-  IsString,
-  IsNotEmpty,
-  IsOptional,
-  IsPositive,
-} from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreatePetDto {
   @IsString()

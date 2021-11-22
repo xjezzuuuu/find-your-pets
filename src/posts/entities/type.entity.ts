@@ -1,27 +1,25 @@
 import {
   Column,
+  PrimaryGeneratedColumn,
   CreateDateColumn,
+  UpdateDateColumn,
   DeleteDateColumn,
   Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { Exclude } from 'class-transformer';
+import { Post } from './post.entity';
 
-import { Pet } from './pet.entity';
-
-@Entity('images')
-export class Image {
+@Entity('post_types')
+export class Post_Type {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  pets_id: number;
-
-  @Column()
+  @Column({ type: 'varchar', length: 45 })
   name: string;
+
+  @Column({ type: 'varchar', length: 225 })
+  description: string;
 
   @CreateDateColumn()
   created_at: Date;
@@ -34,7 +32,6 @@ export class Image {
   @DeleteDateColumn()
   deleted_at: Date;
 
-  @ManyToOne(() => Pet, (pet) => pet.images, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'pets_id' })
-  pet: Pet;
+  @OneToMany(() => Post, (post) => post.post_type)
+  posts: Post[];
 }

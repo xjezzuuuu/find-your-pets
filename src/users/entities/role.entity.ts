@@ -19,7 +19,6 @@ export class Role {
   @Column()
   name: string;
 
-  @Exclude()
   @CreateDateColumn()
   created_at: Date;
 

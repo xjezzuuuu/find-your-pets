@@ -4,6 +4,9 @@ import { PetsRepository } from '../repositories/pets.repository';
 import { Pet } from '../entities/pet.entity';
 import { UpdatePetDto, CreatePetDto } from '../dtos/pet.dto';
 import { ImagesRepository } from '../repositories/images.repository';
+import { join } from 'path';
+import { existsSync } from 'fs';
+import { unlink } from 'fs/promises';
 
 @Injectable()
 export class PetsService {
@@ -58,6 +61,18 @@ export class PetsService {
     const pet = await this._petsRepository.findOne(id);
 
     if (!pet) {
+      files.forEach(async (image) => {
+        const path = join(
+          __dirname,
+          '..',
+          '..',
+          '../public/images/',
+          image.filename,
+        );
+        if (existsSync(path)) {
+          await unlink(join(path));
+        }
+      });
       throw new HttpException(
         {
           status: HttpStatus.NOT_FOUND,
@@ -66,10 +81,12 @@ export class PetsService {
         HttpStatus.NOT_FOUND,
       );
     }
+
     if (files && files.length > 0) {
       await this._imagesRepository.deleteInCascade(pet.id);
       this._imagesRepository.createRelation(pet.id, files);
     }
+
     this._petsRepository.merge(pet, updatePetDto);
 
     return await this._petsRepository.save(pet);
@@ -92,5 +109,9 @@ export class PetsService {
     await this._imagesRepository.deleteInCascade(pet.id);
 
     return 'Pet deleted successfully!.';
+  }
+
+  async findByPostId(postId) {
+    return await this._petsRepository.findByPostId(postId);
   }
 }
