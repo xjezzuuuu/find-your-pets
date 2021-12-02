@@ -35,12 +35,25 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto | AuthRegisterDto): Promise<User> {
+    const user = await this._usersRepository.findByEmail(createUserDto.email);
+    let newUser: User;
+
+    if (user) {
+      throw new HttpException(
+        {
+          status: HttpStatus.CONFLICT,
+          error: `Email ${user.email} is already in use.`,
+        },
+        HttpStatus.CONFLICT,
+      );
+    }
+
     if (createUserDto instanceof CreateUserDto) {
-      const newUser = this._usersRepository.create(createUserDto);
+      newUser = this._usersRepository.create(createUserDto);
       return await this._usersRepository.save(newUser);
     }
 
-    const newUser = this._usersRepository.create({
+    newUser = this._usersRepository.create({
       roles_id: 2,
       ...createUserDto,
     });

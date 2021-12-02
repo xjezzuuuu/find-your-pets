@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 
 import { AuthService } from '../services/auth.service';
 import { JwtAuthGuard } from '../guards/jtw-auth.guard';
@@ -10,19 +10,22 @@ import { ApiTags } from '@nestjs/swagger';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly _authService: AuthService,
-    private readonly _usersService: UsersService,
-  ) {}
+  constructor(private readonly _authService: AuthService) {}
 
   @Post('login')
   async login(@Body() authLoginDto: AuthLoginDto) {
-    return this._authService.login(authLoginDto);
+    return await this._authService.login(authLoginDto);
   }
 
   @Post('register')
   async register(@Body() authRegisterDto: AuthRegisterDto) {
-    return this._usersService.create(authRegisterDto);
+    return await this._authService.register(authRegisterDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('renew')
+  async renew(@Req() req) {
+    return await this._authService.renew(req);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)

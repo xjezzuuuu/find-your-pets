@@ -7,7 +7,7 @@
 .env.development
 
 # Statics Assets
-/public
+/public/images
 
 # Logs
 logs
