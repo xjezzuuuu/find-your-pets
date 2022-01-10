@@ -9,6 +9,13 @@ import { Province } from './entities/province.entity';
 import { Region } from './entities/region.entity';
 import { Post_Type } from './entities/type.entity';
 import { PetsModule } from '../pets/pets.module';
+import { ImagesRepository } from '../pets/repositories/images.repository';
+import { MulterModule } from '@nestjs/platform-express';
+import config from 'src/config/config';
+import { ConfigType } from '@nestjs/config';
+import { diskStorage } from 'multer';
+import { v4 as uuidv4 } from 'uuid';
+import { extname } from 'path';
 
 @Module({
   imports: [
@@ -18,7 +25,19 @@ import { PetsModule } from '../pets/pets.module';
       Province,
       Region,
       Post_Type,
+      ImagesRepository,
     ]),
+    MulterModule.registerAsync({
+      inject: [config.KEY],
+      useFactory: async (configService: ConfigType<typeof config>) => ({
+        storage: diskStorage({
+          destination: configService.files.dest,
+          filename: (req, file, cb) => {
+            cb(null, uuidv4() + extname(file.originalname));
+          },
+        }),
+      }),
+    }),
     PetsModule,
   ],
   controllers: [PostsController],

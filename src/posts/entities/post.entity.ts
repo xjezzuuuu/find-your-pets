@@ -68,7 +68,7 @@ export class Post {
   @JoinColumn({ name: 'users_id' })
   user: User;
 
-  @OneToOne(() => Pet, (pet) => pet.post)
+  @OneToOne(() => Pet, (pet) => pet.post, { cascade: true })
   @JoinColumn({ name: 'pets_id' })
   pet: Pet;
 

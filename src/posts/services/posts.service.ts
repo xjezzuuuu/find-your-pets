@@ -4,12 +4,15 @@ import { Post } from '../entities/post.entity';
 import { PostRepository } from '../repositories/post.repository';
 import { CreatePostDto, UpdatePostDto } from '../dtos/post.dto';
 import { PetsService } from '../../pets/services/pets.service';
+import { Not } from 'typeorm';
+import { ImagesRepository } from '../../pets/repositories/images.repository';
 
 @Injectable()
 export class PostsService {
   constructor(
     private readonly _postsRepository: PostRepository,
     private readonly _petsService: PetsService,
+    private readonly _imagesRepository: ImagesRepository,
   ) {}
   async findAll(): Promise<Post[]> {
     return await this._postsRepository.find();
@@ -17,7 +20,17 @@ export class PostsService {
 
   async findAllWithAllProperties(): Promise<Post[]> {
     return await this._postsRepository.find({
-      relations: ['user', 'pet', 'post_type', 'commune'],
+      relations: ['user', 'pet', 'pet.images', 'post_type', 'commune'],
+    });
+  }
+
+  async findAllWithAllPropertiesExcept(id: number): Promise<Post[]> {
+    return await this._postsRepository.find({
+      relations: ['user', 'pet', 'pet.images', 'post_type', 'commune'],
+      take: 10,
+      where: {
+        id: Not(id),
+      },
     });
   }
 
@@ -30,6 +43,7 @@ export class PostsService {
       relations: [
         'user',
         'pet',
+        'pet.images',
         'post_type',
         'commune',
         'commune.province',
@@ -38,9 +52,34 @@ export class PostsService {
     });
   }
 
-  async create(createPostDto: CreatePostDto): Promise<Post> {
+  async findOneWithAllPropertiesByUserId(id): Promise<Post[]> {
+    return await this._postsRepository.find({
+      relations: [
+        'user',
+        'pet',
+        'pet.images',
+        'post_type',
+        'commune',
+        'commune.province',
+        'commune.province.region',
+      ],
+      where: {
+        users_id: id,
+      },
+    });
+  }
+
+  async create(
+    createPostDto: CreatePostDto,
+    files: Array<Express.Multer.File>,
+  ): Promise<Post> {
+    console.log(files);
     const newPost = this._postsRepository.create(createPostDto);
     await this._postsRepository.save(newPost);
+
+    if (files && files.length > 0) {
+      this._imagesRepository.createRelation(newPost.pet.id, files);
+    }
 
     return newPost;
   }

@@ -1,73 +1,68 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { Pet } from '../../pets/entities/pet.entity';
+import { IsOptional, MinLength, IsNotEmpty, IsArray, IsBooleanString } from 'class-validator';
+import { Image } from '../../pets/entities/image.entity';
 import {
   IsBoolean,
   IsEmpty,
   IsLatitude,
   IsLongitude,
   IsNumber,
+  IsObject,
   IsPositive,
   IsString,
   Length,
 } from 'class-validator';
 
 export class CreatePostDto {
-  @IsEmpty()
-  @IsPositive()
-  @IsNumber()
+  @IsOptional()
   @ApiProperty()
   users_id: number;
 
-  @IsEmpty()
-  @IsPositive()
-  @IsNumber()
+  @IsOptional()
+  @IsObject()
   @ApiProperty()
-  pets_id: number;
+  pet: Pet;
 
-  @IsEmpty()
-  @IsPositive()
-  @IsNumber()
+  @IsOptional()
   @ApiProperty()
   post_types_id: number;
 
-  @IsEmpty()
-  @IsPositive()
-  @IsNumber()
   @ApiProperty()
   communes_id: number;
 
-  @IsEmpty()
+  @IsOptional()
   @IsString()
-  @Length(5, 45)
+  @MinLength(5)
   @ApiProperty()
   title: string;
 
-  @IsEmpty()
+  @IsOptional()
   @IsString()
   @Length(20, 225)
   @ApiProperty()
   description: string;
 
-  @IsEmpty()
+  @IsOptional()
   @IsString()
   @Length(5, 45)
   @ApiProperty()
   address: string;
 
-  @IsEmpty()
+  @IsOptional()
   @IsString()
   @IsLatitude()
   @ApiProperty()
   latitude: string;
 
-  @IsEmpty()
+  @IsOptional()
   @IsString()
   @IsLongitude()
   @ApiProperty()
   longitude: string;
 
-  @IsEmpty()
-  @IsBoolean()
-  @IsLongitude()
+  @IsOptional()
+  @IsBooleanString()
   @ApiProperty()
   status: boolean;
 }

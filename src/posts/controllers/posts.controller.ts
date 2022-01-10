@@ -8,12 +8,14 @@ import {
   UseInterceptors,
   Patch,
   Delete,
+  UploadedFiles,
 } from '@nestjs/common';
 import { PostsService } from '../services/posts.service';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { Post as PostI } from '../entities/post.entity';
-import { Body, HttpException } from '@nestjs/common';
+import { Body } from '@nestjs/common';
 import { CreatePostDto, UpdatePostDto } from '../dtos/post.dto';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -31,6 +33,14 @@ export class PostsController {
     return await this._postsService.findAllWithAllProperties();
   }
 
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Get('/all/:id')
+  async findAllWithAllPropertiesExcept(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<PostI[]> {
+    return await this._postsService.findAllWithAllPropertiesExcept(id);
+  }
+
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<PostI> {
     return await this._postsService.findOne(id);
@@ -45,9 +55,22 @@ export class PostsController {
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
+  @Get('all/user/:id')
+  async findAllWithOnePropertiesByUserId(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<PostI[]> {
+    return await this._postsService.findOneWithAllPropertiesByUserId(id);
+  }
+
+  @UseInterceptors(ClassSerializerInterceptor, FileInterceptor('images'))
   @Post()
-  async create(@Body() createPostDto: CreatePostDto): Promise<PostI> {
-    return await this._postsService.create(createPostDto);
+  async create(
+    @Body() createPostDto: CreatePostDto,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+  ): Promise<PostI> {
+    console.log(files);
+
+    return await this._postsService.create(createPostDto, files);
   }
 
   @UseInterceptors(ClassSerializerInterceptor)

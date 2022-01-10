@@ -1,5 +1,6 @@
 import { PartialType, ApiProperty } from '@nestjs/swagger';
 import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+import { Image } from '../entities/image.entity';
 
 export class CreatePetDto {
   @IsString()
@@ -39,27 +40,28 @@ export class CreatePetDto {
 
   @IsString()
   @IsNotEmpty()
-  @IsOptional()
   @ApiProperty()
   character: string;
 
   @IsString()
   @IsNotEmpty()
-  @IsOptional()
   @ApiProperty()
   social: string;
 
   @IsString()
   @IsNotEmpty()
-  @IsOptional()
   @ApiProperty()
   energy: string;
 
   @IsString()
   @IsNotEmpty()
-  @IsOptional()
   @ApiProperty()
   friendship: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  images: Image[];
 }
 
 export class UpdatePetDto extends PartialType(CreatePetDto) {}
